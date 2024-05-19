@@ -1,3 +1,4 @@
+% This file allows to compute BenSaida (2014) test on a .txt data file, raw and MODWT-filtered data 
 
 clear;
 
