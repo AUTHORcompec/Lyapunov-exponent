@@ -1,0 +1,1393 @@
+  
+\documentclass[12pt]{article}
+
+\date{}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{mathrsfs}
+\usepackage {graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{setspace} 
+\usepackage{mathtools}
+\usepackage{hyperref}
+
+
+\newcommand{\Lim}[1]{\raisebox{0.5ex}{\scalebox{0.8}{$\displaystyle \lim_{#1}\;$}}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+\def\E{{\rm E}}
+\title{Estimating the maximum Lyapunov exponent with denoised data to test for chaos in the German stock market.}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    
+
+BenSa\"{i}da and Litimi (2013) suggest testing for deterministic
+chaos in a noisy time series context via neural networks, by choosing the
+parameters combination, from a given set, that maximizes the estimated 
+Lyapunov exponent. First, we show that this strategy may dramatically reduce the power 
+of the chaos test, compared to the more conservative approach of choosing
+the parameters combination that minimizes the Bayesian Information Criterion (BIC). Next, once selected
+the parameters combination that controls for size and power, we compare the results achieved on
+the German individual stock market returns with the 0--1 test to those achieved computing the maximum Lyauponov computed with 
+wavelet-denoised data. The results are compatible with deterministic chaos in individual stock returns. Additional evidence in alternative 
+indices and time periods is found.\\  
+
+\noindent \textit{Key Words}:Deterministic chaos; Lyapunov exponent; Bayesian Information Criterion; Maximal Overlap Discrete Wavelet Transforms.\\
+
+        
+    
+\end{abstract}
+
+\newpage
+
+\section{Introduction\label{sec:intro}}
+
+In mid and late 80's, interest arose in chaos theory in Economics and Finance. 
+As stated in Hsieh (1991), "chaos is a nonlinear deterministic process which `looks' random".
+The possibility that
+a set of deterministic dynamic nonlinear models can display complex and unpredictable behavior mimicking random shocks is both fascinating and challenging. Hence, theoretical models 
+have been proposed to support the chaotic behavior of some economic and financial variables, since the seminal works by Benhabib and Day (1981,1982) and Day (1983)
+For instance, Grandmont (1985) showed that a classical macroeconomic model could display chaotic dynamics.
+More recently,  Bella et al. (2017) show that a Lucas(1988) endogenous growth model may be characterized by chaotic dyamics, whereas Barnett et al. (2022) propose a sticky price New Keynesian macroeconomic model, augmented by closed loop interest rate feedback rules, displaying
+Shilnikov chaos. In Finance, interaction between different type of market agents, namely chartists and fundamentalists, can provide an explanation for stock prices and exchange rates variability, see e.g. De Grauwe et al. (1993), whereas
+Brock and Hommes (1998) design an asset pricing model with traders' heterogeneous beliefs displaying numerical evidence of chaotic attractors. See Klioutchnikov et al. (2017) for a view of implications of chaos theory in financial markets detection and forecasting.
+
+Early studies in Macroeconomics found evidence of nonlinearity but did not detect strong or consistent evidence of chaos. For instance,
+Brock and Sayers (1988) and Ashley and Patterson (1989) analyzed different macro time series, Barnett and Chen (1988) claimed finding chaos in a monetary index, whereas Frank and Stengos (1989) examined gold and silver spot prices. Further advances in the empirical analysis of deterministic chaos and the data amount available in Finance have fueled the search for chaos in stock prices and other financial assets, see Hsieh (1991), Brock et al. (1991), Abhyankar et al. (1997), Serletis and Gogas (1997), Adrangi, et al. (2001), McKenzie (2001) and Antoniou and Vorlow (2005). More recently, Webel (2012) detects chaos in the individual stocks of the DAX30 index, Litimi et al. (2019) find chaos in the volatility of some market indices and Nooghabi and Rounaghi (2014), Moghadam et al. (2014) and Abbaszadeh et al. (2020) detect chaos in Tehran stock exchange.
+
+
+Regarding methodologies, some empirical analysis tools have been suggested, as the Grassberger-Procacia (1982) dimension estimation algorithm, bispectral methods by  Rao and Gabr (1984), the BDS test by Brock et al. (1996), the close returns plot by Gilmore (1993), the quantification of recurrence plots developed by Zbilut and Webber (1992), the so called Lyapunov exponents computation uisng alternative approaches, or the 0--1 test by Gottwald and Melbourne (2004), among others.
+
+
+It is well known that deterministic chaos is characterized by sensitivity on initial conditions, i.e., small changes in the initial conditions of a chaotic system lead to completely different orbits in the state space.
+Such sensitivity is measured through the maximum Lyapunov exponent: the exponential rate at which two nearby trajectories diverge. Thus, the sign of deterministic chaos is a finite positive Lyapunov exponent, see Kantz and Schreiber (1997) for a thorough discussion.
+
+
+In practice, the algorithm of Wolf et al. (1985) was the first procedure suggested to compute Lyapunov exponents for experimental data. However, it usually needs a large amount of data and is very sensitive to noise. Since then, there are two main methods in the literature to compute the Lyapunov exponent: the approach of Rosenstein et al. (1993), based on the measurement of the growth rate of divergence between two trajectories initially very close, and the indirect approach of Nychka et al. (1992), based on the estimation of neural networks. However, the Rosenstein et al. method lacks of statistical distribution theory, contrary to the Nychka et al. neural network estimator.
+
+In a recent paper, BenSa\"{i}da and Litimi (2013) suggest testing for deterministic chaos via the $t$-test designed by Shintani and Linton (2004) based on the Nychka et al. estimator. However, in contrast to Shintani and Linton's (2004) choice of the parameters combination that minimizes the Bayesian Information Criterion (BIC), BenSa\"{i}da and Litimi (2013) select the parameters combination that maximizes the estimated Lyapunov exponent, arguing that this procedure allows to detect high dimensional chaos more frequently than the BIC approach.
+
+On the other hand, Webel (2012) tested for chaos in the individual stock returns of the German DAX30 index by using the 0--1 test, calculated with denoised data using Maximal Overlap Discrete Wavelet Transforms (MODWT). He concludes that denoised DAX30 stock returns are chaotic.
+
+In this paper, we study the finite sample behavior of the chaos $t$ test when using the approach of
+BenSa\"{i}da and Litimi (2013) compared to the approach of Shintani and Linton (2004), by means of a Monte Carlo experiment to find out the adequate size of the parametric set to choose in the Lyapunov exponent maximization process. In addition, we analyze the time series analyzded by Webel (2012) by estimating the maximum Lyapunov exponents using MODWT-denoised returns series and the recommended parameters set size. Furthermore, we extend the analysis to the stock returns of other important european indices: the French CAC40, the Spanish IBEX35 and the updated DAX40.
+
+Next section briefly reviews the chaos test methodology, section 3 presents the Monte Carlo experiment with a discussion of the results. Section 4 is dedicated to the empirical application. Section 5 concludes.
+
+
+\section{The chaos test}
+
+
+We will test for deterministic chaos by computing the
+Jacobian-based estimator using neural network nonparametric regression,
+as proposed by Shintani and Linton (2004) and BenSa\"{i}da (2012).
+
+
+	
+\subsection{Preliminaries}
+
+
+Our starting point is a (discrete) deterministic dynamical system, $H: \mathbb{R}^n \rightarrow \mathbb{R}^n$, with the trajectory,
+\begin{equation}
+\mathbf{x}_{t+1}=H(\mathbf{x}_t),\,\,\,\,\,\,\, t=0,1,2,\ldots
+\end{equation}
+where $\mathbf{x}_t$ is the $n$-dimension vector of state space variables at time $t$.
+
+
+As stressed in Toker et al. (2020), ``formally, a system is chaotic if it is bounded ($\ldots$), and if it is deterministic (meaning that, with the exact same initial conditions, it will always evolve over time in the same way), and if tiny perturbations to the system get exponentially amplified''. Therefore, a bounded deterministic dynamical system is chaotic if it displays  sensitive dependence on initial conditions.
+
+
+The so-called Lyapunov exponents  provide a measure of the
+ local instability of a system by measuring the exponential separation between two nearby trajectories. In a $n$ dimension dynamical system, there are $n$ Lyapunov exponents, representing each exponent as the mean rate of contraction or expansion of the solution of
+the system in each axis of the phase space:
+\begin{equation}
+\lambda_1 \geq\lambda_2 \geq \cdots\lambda_n
+\end{equation} 
+The dominant Lyapunov exponent is defined as:
+\begin{equation}
+\lambda_1=\Lim{t \rightarrow \infty} t^{-1}\ln \norm{ \mathbf{J}_{t-1}\cdot\mathbf{J}_{t-2}\cdots \mathbf{J}_{0} }
+\end{equation}
+where $\mathbf{J}_{t}$ is the matrix of partial derivatives of the map $H$ evaluated at $\mathbf{x}_{t}$ and $\norm \cdot$ denotes some $n\times n$ matrix norm. By Osedelec's (1968) Theorem, the limit (3) exists for a broad class of functions. 
+
+
+Simple dynamic attractors can be distinguished from complex dynamic attractors by means of Lyapunov exponents.
+Formally, a set $\Lambda$ is an attractor, which can be chaotic, if there is an open set $U\subset  \mathbb{R}^n$ such that
+\begin{equation}
+\Lambda=\bigcap_{t\geq 0} H^{t}(\bar{U}),
+\end{equation}
+where $H^{t}$ is $H$ iterated $t$ times, with the convention that $H^{0}$ is the identity map, and $\bar{U}$ is the closure of $U$. In words, it is the bounded region in the state space towards which the trajectories of $H$ converge.
+In a chaotic system, the evolution of any solution should be bounded inside the attractor but should also be locally unstable. This implies that the trajectories described by the solution to a chaotic system are irregular and aperiodic, with sensitive dependence on initial conditions. If the maximum Lyapunov exponent, $\lambda_1$, of the system is positive, we claim the attractor is chaotic.
+
+
+However, as stressed in Gencay and Dechert (1992), the state of the 
+system and the functional form $H$ are rarely observable. Dechert and Gencay (1992), Gencay and Dechert (1992, 1996) consider a measurement function 
+$h: \mathbb{R}^n \rightarrow \mathbb{R}$ wich generates observations,
+\begin{equation}
+y_{t}=h(\mathbf{x}_t).
+\end{equation}
+
+
+
+From a practical perspective, ${y_1, y_2,\ldots}$ is the set of available data to the researcher. Given an embedding dimension $d$, we define the embedded vectors:
+\begin{equation}
+Z_{t}=(y_{t},\ldots,y_{t-d+1})'\in\mathbb{R}^{d}
+\end{equation}
+Takens (1981) shows that, if $d\geq 2 n + 1$ and the set $\bar{U}$ is a compact manifold, then:
+\begin{equation}
+B^{d}(\mathbf{x})=Z_{t}
+\end{equation}
+is an embedding of $\bar{U}$ onto $B^{d}(\bar{U})$. For $d\geq 2 n + 1$, there exists a function $F: \mathbb{R}^d \rightarrow \mathbb{R}^d$ such that:
+\begin{equation}
+Z_{t}=F(Z_{t-1}).
+\end{equation}
+As Gencay and Dechert (1992) claim, under the assumption that $B^d$ is a homeomorphism, $H$ is topologically conjugate to $F$. Therefore, $H$ and $F$ have the same Lyapunov exponents, among others dynamical properties. We can write the system as:
+\begin{equation}
+\left(\begin{array}{c} 
+ y_{t} \\  y_{t-1} \\ \vdots  \\ y_{t-d+1} 
+\end{array}\right)  =
+F\left(\begin{array}{c} 
+ y_{t-1} \\  y_{t-2} \\ \vdots  \\ y_{t-d}
+\end{array}\right),
+\end{equation}
+\begin{equation}
+F\left(\begin{array}{c} 
+ y_{t-1} \\  y_{t-2} \\ \vdots  \\ y_{t-d}
+\end{array}\right)=
+\left(\begin{array}{c} 
+ \theta_{0}(y_{t-1}, y_{t-2}\ldots,y_{t-d}) \\  y_{t-1} \\ \vdots  \\ y_{t-d+1} 
+\end{array}\right)
+\end{equation}
+so the problem is reduced to estimate the relationship:
+\begin{equation}
+y_{t}=\theta_{0}(y_{t-1},\ldots,y_{t-d})
+\end{equation}
+Dechert and Gencay (1990) show that the $n$ largest Lyapunov exponents of $H$ in equation (1) have
+the same values as the Lyapunov exponens of $F$ in equation (8).
+
+
+
+In a stochastic setting, we define the stochastic difference equation as in Giannerini and Rosa (2004):
+\begin{equation}
+\mathbf{x}_{t+1}=H(\mathbf{x}_t)+\mathbf{e}_{t+1},\,\,\,\,\,\,\, t=0,1,2,\ldots
+\end{equation}
+where $\mathbf{e}_t$ is a sequence of independent and identically distributed $n$-dimensional random vectors, independent of $\mathbf{x}_s$, $0\leq s \leq t$, representing external noise perturbing the system. This dynamic noise interacts with the deterministic skeleton, In a similar fashion, equation (5) can be written as:
+\begin{equation}
+y_{t}=h(\mathbf{x}_t)+ s\eta_t,
+\end{equation}
+where $\eta_t$ represents measurement error and $s$ is the signal to noise ratio.
+
+
+
+As pointed out by Nychka et al. (1992), by focusing on the dominant Lyapunov exponent we can fit dynamical models to time series and estimate the degree to which $\theta_{0}$ is is chaotic, without pressuposing that the system is deterministic. Hence, they propose to estimate the Lyapunov exponent by using nonparametric regression, assuming that the data are generated by a nonlinear autoregressive model:
+\begin{equation}
+y_{t}=\theta_{0}(y_{t-1},\ldots,y_{t-d})+u_{t}
+\end{equation}
+where $\theta_{0}:\mathbb{R}^{d}\rightarrow\mathbb{R}$ is a nonlinear dynamic
+map and $\{u_{t}\}$ is a sequence of random variables with $E(u_t)=0$ and variance $\sigma^2$. The model can be expressed
+in terms of a map with an error vector $U_{t}=(u_{t},0,\ldots,0)$ and the map
+function $F:\mathbb{R}^{d}\rightarrow\mathbb{R}^{d}$ such that
+\begin{equation}
+Z_{t}=F(Z_{t-1})+U_{t}
+\end{equation}
+where $Z_{t}=(y_{t},\ldots,y_{t-d+1})'\in\mathbb{R}^{d}$. In a more general setting,
+\begin{equation}
+y_{t}=\theta_{0}(y_{t-L},y_{t-2L}\ldots,y_{t-dL})+u_{t}
+\end{equation}
+where $L>0$ is the so-called time delay.  
+
+
+
+
+\subsection{Artificial neural networks estimator.}
+
+
+
+Nychka et al. (1992) give a formal definition of the Lyapunov exponents:
+\begin{equation}
+\lambda_i=\Lim{M \rightarrow \infty}\frac{1}{2M}\ln\upsilon_i\left(\mathbf{T_{M}'T_{M}}\right),\,\,\,\,\,\mathbf{T_{M}}=\prod_{t=1}^{M}J_{M-t}=
+J_{M-1}\cdot J_{M-2}\cdot\cdot\cdot J_{0}
+\end{equation}
+for $1\leq i \leq d$, with $\lambda_1\leq \lambda_2,\ldots,\leq \lambda_d$, where $\upsilon_i(A)$ is the $i$th largest eigenvalue of a matrix $A$ and
+$J_t$ is the
+Jacobian of the map $F$ evaluated at $Z_{t}$:
+\begin{equation}
+J_{t}=\left[\begin{array}{ccccc}
+\Delta\theta_{01t} & \Delta\theta_{02t} & \ldots & \Delta\theta_{0d-1t} & \Delta\theta_{0dt}\\
+1                  &  0                 & \ldots & 0                    & 0                 \\
+0                  &  1                 & \ldots & 0                    & 0                 \\
+\vdots             &  \vdots            & \ddots & \vdots               & \vdots            \\
+0                  &  0                 & \ldots & 1                    & 0                 \\
+\end{array}
+\right]
+\end{equation}
+for $t=0, 1, \ldots, T-1$, where $\Delta\theta_{0jt}=D^{e_{j}}\theta_{0}(Z_{t})$
+for $j=1, \ldots, d$ and $e_{j}=(0, \ldots, 1, \ldots, 0)'\in\mathbb{R}^{d}$
+denotes the $j$th elementary vector. 
+If $J_t$ is ergodic and stationary, and if $\max \{\ln v_1(J'_tJ_t), 0\}$ has a finite expectation, then 
+the limit
+\begin{equation}
+\lambda_1=\Lim{M \rightarrow \infty}\frac{1}{2M}\ln\upsilon_1\left(\mathbf{T_{M}'T_{M}}\right)
+\end{equation}
+almost surely exists and will be a constant, irrespective of the initial condition. 
+
+
+Ellner et al. (1991) claim that, in the presence of system noise, as in equation (15), the relationship between the attracting set and the univariate time series is not clear. However, as pointed out in Shintani and Linton (2004), 
+\textit{noisy chaos} with $\lambda>0$
+can be defined in (14) for moderate $\sigma$ values, i.e., $\Lim{\sigma\rightarrow 0}\lambda_\sigma \rightarrow \lambda$, where $\lambda_\sigma$ is the Lyapunov exponent of (14) and $\lambda$ is the Lyapunov exponent of the deterministic system (11). 
+
+
+
+
+Given a nonparametric estimator
+of $\theta_{0}$, $\hat{\theta}$, we can obtain $\hat{J_{t}}$ by substituting $\hat{\theta}$
+in the $J_{t}$ matrix. 
+Then, the nonparametric estimator of the $i$th largest
+Lyapunov exponent is given by
+\begin{equation}
+\hat{\lambda}_{iM}=\frac{1}{2M}\ln\upsilon_i\left(\mathbf{\hat{T}_{M}'\hat{T}_{M}}\right),\,\,\,\,\,\mathbf{\hat{T}_{M}}=\prod_{t=1}^{M}\hat{J}_{M-t}=
+\hat{J}_{M-1}\cdot\hat{J}_{M-2}\cdot\cdot\cdot\hat{J}_{0}
+\end{equation}
+for $1\leq i \leq d$, where
+$\hat{J}_t=D\hat{\theta}(Z_{t})$. Now we distinguish between
+the sample size $T$ used for estimating the Jacobian $\hat{J}_{t}$ and the
+block length $M$, which is the number of evaluation points used for estimating
+the Lyapunov exponent.
+
+
+
+
+Altenative methods for estimating the Jacobian of the map have been proposed in the literature, see McCaffrey et al. (1992): local thin-plate splines, radial basis functions, projection pursuit, and neural networks. However, as stressed in Shintani and Linton (2004), simulation results in Kuan and White (1994) and Nychka et al. (1992), are favorable to neural networks.
+Thus, given the values of time delay $L$, number of lags $m$ and number of hidden units $q$, we can approximate the unknown chaotic map by the single hidden layer feedforward network, which has been the predominant model in statistical research on neural nets, see Ellner et al. (1992), Dechert and Gencay (1992), Nychka et al. (1992), Shintani and Linton (2004), BenSa\"{i}da and Litimi (2013) or Sandubete and Escot (2020). Thus, we define:
+\begin{equation} 
+\theta_{0}(y_{t-L},y_{t-2L}\ldots,y_{t-dL})=\alpha_0+\sum_{j=1}^q\alpha_j \Psi \left(\beta_{0,j}+\sum_{i=1}^m\beta_{i,j}y_{t-iL}\right).
+\end{equation}
+Therefore,
+\begin{equation}
+y_t=\alpha_0+\sum_{j=1}^q\alpha_j \Psi \left(\beta_{0,j}+\sum_{i=1}^m\beta_{i,j}y_{t-iL}\right)+u_{t}
+\end{equation}
+where   $ \Psi$ is the activation function.
+
+
+We have chosen a type of sigmoid function as in Shintani and Linton (2004) and Nychka et al. (1992):
+\begin{equation}
+\Psi (u)=\frac{u\left(1+|u/2|\right)}{2+|u|+u^{2}/2}. 
+\end{equation}
+ The parameters values are selected by minimizing the least squares criterion with the loss function defined as
+\begin{equation}
+L(\theta_0)=\sum_{t=1+m L}^T\left(y_t-\alpha_0-\sum_{j=1}^q\alpha_j \Psi \left(\beta_{0,j}+\sum_{i=1}^m\beta_{i,j}y_{t-iL}\right)\right)^2
+\end{equation}
+More specifically, to estimate the parameters we have used the Levenberg-Marquardt algorithm,
+which combines the stability of the steepest descent method and the speed advantage of the Gauss–Newton
+algorithm. 
+Although the Levenberg–Marquardt algorithm is somewhat slower, it is more robust than Gauss–Newton algorithm, and converges much faster than the steepest descent method, see Yu and Wilamowski (2011). In any case, as already pointed out by Ellner et al. (1992), fitting neural networks by nonlinear least squares is a "numerical nightmare", since the parameter space is full of local minima and directions along which the root of the mean squared error has an asymptote rather than local minima. 
+Some strategies can mitigate this issue, although it is not relevant when comparing of alternative methods that potentially suffer the same phenomenon. 
+
+
+
+Shintani and Linton (2004) established two sets of assumptions in order to get consistent estimates of the Jacobian-based Lyapunov exponents and their corresponding distributional characteristics. Next, we recall them.
+
+
+
+
+
+\subsection*{Assumptions on the dynamics.}
+
+
+
+
+
+\hspace{\parindent} A1. (a) $\left\{Z_{t}\right\}_{t=1}^{T}$ is a strictly stationary $\beta$-mixing sequence with a mixing coefficient satisfying $\beta(j) \leqslant \beta_{0} j^{-\zeta}$ for some $\beta_{0}>0, \zeta>2$, where the $\beta$-mixing coefficient is given by
+
+$$
+\beta(j)=\mathrm{E} \sup \left\{\left|\mathrm{P}\left(B \mid \mathscr{F}_{-\infty}^{0}\right)-\mathrm{P}(B)\right|: B \in \mathscr{F}_{j}^{\infty}\right\}
+$$
+
+where $\mathscr{F}_{s}^{t}$ is the $\sigma$-field generated by $\left(Z_{s}, \ldots, Z_{t}\right)$.
+
+(b) The distribution of $Z_{t}$ is absolutely continuous with respect to Lebesgue measure with marginal density function $f$ with a compact support $\mathscr{Z}$ in $\mathbb{R}^{d}$. The initial condition $Z_{0}$ is a random variable generated from the same distribution.
+
+A2. $\left\{u_{t}\right\}_{t=1}^{T}$ is a random sequence of either: (a) i.i.d. with $\mathrm{E}\left(u_{t}\right)=0$ and $\mathrm{E}\left(u_{t}^{2}\right)=$ $\sigma^{2}<\infty$, or
+
+(b) martingale difference with $\mathrm{E}\left(u_{t} \mid \mathscr{F}_{-\infty}^{t-1}\right)=0$ and $\mathrm{E}\left(u_{t}^{2} \mid \mathscr{F}_{-\infty}^{t-1}\right)=\sigma_{t}^{2} \in\left[\varepsilon, \varepsilon^{-1}\right]$ for some $\varepsilon>0$.
+
+A3.
+
+$$
+\begin{aligned}
+& \theta_{0} \in \Theta=\{\theta: \theta(z)=\int \exp \left(i a^{\prime} z\right) \mathrm{d} \mu_{\theta}(a) \\
+&\left.\left\|\mu_{\theta}\right\|_{3} \equiv \int l(a)^{3} \mathrm{~d}\left|\mu_{\theta}\right|(a) \leqslant C<\infty\right\}
+\end{aligned}
+$$
+
+where $\mu_{\theta}$ is a complex-valued measure on $\mathbb{R}^{d},\left|\mu_{\theta}\right|$ denotes total variation of $\mu_{\theta}$, $l(a)=\max \left[\left(a^{\prime} a\right)^{1 / 2}, 1\right]$ and $a^{\prime}=\left(a_{1}, \ldots, a_{d}\right) \in \mathbb{R}^{d}$.
+
+
+
+A4. The system (1) has distinct Lyapunov exponents defined by equation (17).
+
+A5. For $1 \leqslant i \leqslant d$ and some $\phi \geqslant 0$,
+
+$$
+\max _{1 \leqslant t \leqslant M}\left|F_{i, t-1}\left(J_{M-1}, \ldots, J_{0}\right)\right|=\mathrm{O}_{\mathrm{p}}\left(M^{\phi}\right)
+$$
+
+where
+
+$$
+F_{i, t-1}\left(J_{M-1}, \ldots, J_{0}\right)=\frac{\partial \ln v_{i}\left(\mathbf{T}_{M}^{\prime} \mathbf{T}_{M}\right)}{\partial \Delta \theta\left(Z_{t-1}\right)}
+$$
+
+and
+
+$$
+\Delta \theta\left(Z_{t}\right)=\left(\Delta \theta_{1, t}, \Delta \theta_{2, t}, \ldots, \Delta \theta_{d, t}\right)^{\prime}
+$$
+
+A6. For $1 \leqslant i \leqslant d$,
+
+$$
+\Phi_{i} \equiv \lim _{M \rightarrow \infty} \operatorname{var}\left[\frac{1}{\sqrt{M}} \sum_{t=1}^{M} \eta_{i t}\right]
+$$
+
+is positive and finite, where
+
+$$
+\begin{aligned}
+& \eta_{i t}=\xi_{i t}-\lambda_{i} \text { with } \xi_{i t}=\frac{1}{2} \ln \left(\frac{v_{i}\left(\mathbf{T}_{t}^{\prime} \mathbf{T}_{t}\right)}{v_{i}\left(\mathbf{T}_{t-1}^{\prime} \mathbf{T}_{t-1}\right)}\right) \\
+& \quad \text { for } t \geqslant 2 \text { and } \xi_{i 1}=\frac{1}{2} \ln v_{i}\left(\mathbf{T}_{1}^{\prime} \mathbf{T}_{1}\right)
+\end{aligned}
+$$
+
+
+$\mathrm{A} 1, \mathrm{~A} 2$, and $\mathrm{A} 3$ are conditions to obtain the convergence rate of the neural network estimator.
+$\mathrm{A} 5$ allows to have a valid Taylor series expansion of the estimator of Lyapunov exponent. This condition is expected to hold for many chaotic processes whereas $\mathrm{A} 6$ provides the asymptotic variance of the local Lyapunov exponent. 
+
+
+
+
+
+
+\subsection*{ Assumptions on neural networks}
+\hspace{\parindent} B1. The neural network estimator $\hat{\theta}_{T}$ is an extremum sieve estimator that satisfies
+
+$$
+L_{T}\left(\hat{\theta}_{T}\right) \geqslant \sup _{\theta \in \boldsymbol{\theta}_{T}} L_{T}(\theta)-\mathrm{O}\left(\varepsilon_{T}^{2}\right)
+$$
+
+with $\varepsilon_{T} \rightarrow 0$ as $T \rightarrow \infty$, where $L_{T}(\theta)$ is a least square criterion
+
+$$
+L_{T}(\theta)=\frac{1}{T} \sum_{t=1}^{T} l\left(\theta, x_{t}, Z_{t-1}\right)=-\frac{1}{T} \sum_{t=1}^{T} \frac{1}{2}\left(x_{t}-\theta\left(Z_{t-1}\right)\right)^{2}
+$$
+This assumption allows an approximate maximization problem where exact maximization is included as a special case when $\varepsilon_{T}=0$.
+
+
+B2. The neural network sieve $\theta_{T}: \mathbb{R}^{d} \rightarrow \mathbb{R}$ is an approximation function in the parameter space $\Theta_{T}$ satisfying
+
+$$
+\theta_{T}(z)=\beta_{0}+\sum_{j=1}^{2^{k} r(T)} \beta_{j} l\left(a_{j}\right)^{-2} \psi\left(a_{j}^{\prime} z+b_{j}\right)
+$$
+
+with
+
+$$
+\max _{1 \leqslant j \leqslant 2^{k} r(T)}\left|a_{j}\right| \leqslant C_{T}, \quad \sum_{j=0}^{2^{k} r(T)}\left|\beta_{j}\right| \leqslant B_{T}
+$$
+where $\psi$ is an activation function, $a_{j} \in \mathbb{R}^{d}, b_{j}, \beta_{j} \in \mathbb{R}$ are parameters, and $k$ is the number related to the class of activation function.
+This implies that the neural network
+sieve consists of $2^{k} r(T)$ number of hidden units with common activation function $\psi$.
+
+
+
+
+
+B3. The activation function $\psi$ is a possibly nonsigmoid function satisfying $\psi \in \mathscr{B}_{1}^{2}$ and is $k$-finite for some $k \geqslant 2$,
+
+$$
+0<\int_{\mathbb{R}}\left|D^{k} \psi(u)\right| \mathrm{d} u<\infty
+$$
+
+This  allows nonsigmoid as well as sigmoid activation functions (Hornik et al. (1994)).
+
+B4. For any $\left(a^{\prime}, b\right),\left(a_{1}^{\prime}, b_{1}\right) \in \mathbb{R}^{d} \times \mathbb{R}$, there exists an $\alpha \in(0,1)$ associated with $\psi \in \mathscr{B}_{1}^{2}$ such that for all $z$ in the compact support $S$,
+
+$$
+\left\|\psi_{a, b}-\psi_{a_{1}, b_{1}}\right\|_{\mathscr{B}_{1}^{2}} \leqslant \text { const } \times\left[\left(\left(a-a_{1}\right)^{\prime}\left(a-a_{1}\right)\right)^{1 / 2}+\left|b-b_{1}\right|\right]^{\alpha},
+$$
+
+where $\psi_{a, b}(z)$ is the rescaled activation function defined by
+
+$$
+\psi_{a, b}(z)=l(a)^{-2} \psi\left(a^{\prime} z+b\right)
+$$
+
+The entries of the estimated Jacobian matrix (18) are obtained by using the analytical first derivative of the neural network sieve in B2, evaluated with $Z_t$ and the estimated parameters by minimizing the least squares criterion in B1:
+\begin{equation*}
+\Delta \hat{\theta}\left(Z_{t}\right)=\left(\Delta \hat{\theta}_{1, t}, \Delta \hat{\theta}_{2, t}, \ldots, \Delta \hat{\theta}_{d, t}\right)^{\prime}.
+\end{equation*} 
+ 
+Under both sets of assumptions, Shintani and Linton (2004) show in their Lemmas 1 and 2 that the neural network derivative estimator is consistent.
+Finally, they show that, in the one-dimensional case:
+\begin{equation}
+\sqrt{M}(\hat{\lambda}_{M}-\lambda_{M})\Rightarrow N(0,\Phi),
+\end{equation} 
+whereas, in the multi-dimensional case:
+\begin{equation}
+\sqrt{M}(\hat{\lambda}_{iM}-\lambda_{iM})\Rightarrow N(0,\Phi_i),
+\end{equation} 
+
+These results allow us to test the null hypothesis $H_{0}:\lambda\geq 0$
+(deterministic chaos) against
+the alternative $H_{1}:\lambda<0$,
+therefore the test is (left-tail) one-sided.
+Given a consistent estimate of the unknown
+population standard deviation of the estimator $\hat{\lambda}$, $\hat{\Phi}$, the test
+statistic is given by
+\begin{equation}
+\hat{t}=\frac{\hat{\lambda}_{M}}{\sqrt{\hat{\Phi}/M}}
+\end{equation}
+Under the null hypothesis, $\hat{t}$ is asymptotically distributed as a $N(0, 1)$
+random variate. In this paper, we compute the heteroskedasticity and autocorrelation
+consistent (HAC) covariance matrix estimator, as suggested by Shintani
+and Linton (2004). For the one-dimensional case, we compute $\hat{\Phi}$ as:
+\begin{equation}
+\hat{\Phi}=\sum_{j=-M+1}^{M-1}\omega(j/S_M)\hat{\gamma}(j)\text{\,\,\,\,\,and\,\,\,\,\,}
+\hat{\gamma}(j)=\frac{1}{M}\sum_{t=|j|+1}^{M}\eta_t\eta_{t-|j|},
+\end{equation}
+where $\eta_t=\ln|D\hat{\theta}(x_{t-1})|-\hat{\lambda}_M$, whereas for the multidimensional case, the test statistic is:
+\begin{equation}
+\hat{t}_i=\frac{\hat{\lambda}_{iM}}{\sqrt{\hat{\Phi}_i/M}},
+\end{equation}
+where the HAC matrix is now calculated by replacing $\eta_t$ with:
+\begin{equation}
+\eta_{it}=\hat{\xi}_{it}-\hat{\lambda}_{iM}\,\,\,\text{with}\,\,\,\hat{\xi}_{it}=\frac{1}{2}\ln\left(\frac{\nu_i(\mathbf{\hat{T}_t'\hat{T}_t)}}{\nu_i(\mathbf{\hat{T}_{t-1}'\hat{T}_{t-1})}}\right)\,\,\,\text{for $t\geq 2$, and}
+\end{equation}
+\begin{equation}
+\xi_{i1}=\frac{1}{2}\ln\left(\nu_i(\mathbf{\hat{T}_1'\hat{T}_1})\right).
+\end{equation}
+
+In this paper, we have used the  Quadratic Spectral kernel for variance estimation, and the sigmoid function as activation function in the neural network estimation.
+
+
+
+At this point, one could argue that neural networks with just one hidden layer, i.e., shadow models, are not capable to extract many subtle features from the data. Thus. adding layers would help in learning the features effectively. In fact, deep neuraal networks use to include many hidden layers and can be very succesful in many tasks, as forecasting, if they are adequately trained. Other types of deep neural networks, the so-called recurrent networks (Williams et al., 1989) and more specifically, the Long Short-Term Memory, or LSTM models (Hochreiter et al., 1997), are better suited to perform time series analysis and forecasting. However, besides the computational challenge of fitting these architectures with real noisy data, 
+Hornik, Stinchcombe and White (1989) showed that any standard feedforward networks with as few as 
+one hidden layer using arbitrary squashing functions are capable of approximating any Borel measurable function
+ from one finite dimensional space to another to any desired degree of accuracy, providing sufficiently many hidden units. Therefore, fitting such simple neural networks is enough for our main goal: comparing two alternative strategies of testing the chaos hypothesis through Lyapunov exponents estimation. 
+
+
+\section{Maximize the Lyapunov exponent or minimze the BIC?}
+
+As BenSa\"{i}da and Litimi (2013) point out, the orders $(L,m,q)$ define how complex the chaotic map is. They suggest to estimate the Lyapunov exponent by choosing ``sufficiently high orders $(L,m,q)$ not to exceed, yet able to detect high-level chaotic dynamics''. Then, we fit the neural network model by nonlinear least squares for each triplet combination and keep the orders that maximizes the estimated Lyapunov exponent.
+
+At first, it seems that BenSa\"{i}da and Litimi (2013) approach would be more powerful to detect high-level deterministic chaos than keeping the $(L,m,q)$ orders that minimizes the Bayesian Information Criterion. However, the authors acknowledge that too high triplet values would result in loosing information and we would face the problem of redundant variables. 
+
+Nevertheless, it is possible that choosing a large set of possible combinations of triplet values $(L,m,q)$ would increase the probability of estimating a positive Lyapunov exponent, thus leading to the false conclusion that the system is chaotic. 
+
+In this section, we try to answer the question: what is best to detect chaos in real, hence potentially noisy, data? Either to optimally choose the
+triplet combination such that the estimated maximum Lyapunov exponent is maximized, or to choose a combination such that some
+model selection criterion, as the Bayesian (BIC) is minimized? The former would maximize the probability of correctly detecting chaos, mostly in high dimensional cases, but, in theory, at the cost of a loss of power. On the other hand, minimizing the BIC, as Shintani and Linton (2004) suggest, would display a lower probability of detecting high dimensional chaos.\footnote{Matlab code can be found at \url{https://github.com/AUTHORcompec/Lyapunov-exponent.git}. The programs are slight modifications of the original code by BenSa\"{i}da (2015), freely available at \url{http://www.mathworks.com/matlabcentral/fileexchange/22667}.}
+
+To analyze the question, we perform a Monte Carlo work inspired by BenSa\"{i}da and Litimi (2013). We simulate 100 samples of 200, 500, 1000 and 1500 observations each, the latter being close to the data sample size of DAX30 in the empirical section. For each sample size, we compute the $t$ statistic using both approaches: Shintani and Linton (2004) and BenSa\"{i}da (2012). The simulated series correspond to the following data generating processes:
+\setcounter{equation}{0}
+\begin{eqnarray}
+y_{t} & = & x_{t}+s\, \varepsilon_{t},\,\dot x=\sigma(y-x), \dot y =x(\rho-z)- y, \dot z=x y-\beta z.\\
+y_{t} & = & x_{t}+s\, \varepsilon_{t},\,y_{t}=4 y_{t-1} (1-y_{t-1}).\\
+y_{t} & = & x_{t}+s\, \varepsilon_{t},\,x_{t}=1-1.4 x^{2}_{t-1}+y_{t-1}, y_{t}=0.3 y_{t-1}.\\
+y_{t} & = & x_{t}+s\, \varepsilon_{t},\,\dot x=-y-z, \dot y =x+0.2 y, \dot z=0.2+(x-5.7) z.\\
+y_{t} & = & \sqrt{h_{t}}\,u_{t},\, h_{t}=0.01+0.1 y_{t-1}^2+0.85 h_{t-1},\,u_{t}\sim N(0,1).\\
+y_{t} & = & 0.1+0.2\,y_{t-1}+0.15\,u_{t-1}+u_{t},\,u_{t}\sim N(0,1).\\
+y_{t} & = & u_{t}\sim N(0,1).\\
+y_{t} & = & u_{t}\sim t_3.
+\end{eqnarray}
+where, in Models (1)--(4)
+$\varepsilon_{t}\sim N(0,1)$.
+
+Model (1) is a Lorenz system,
+Model (2) is the logistic function, 
+Model (3) is the H\'enon map
+and Model (4) is the R\"ossler system. Parameter configurations in Models (1)--(4) are compatible with deterministic chaos, contaminated with additive noise of size $s$ equal to 10\% of the standard error of the deterministic signal. Initial conditions have been set randomly.
+
+Model (5) is a pure GARCH(1,1) model with high persistence in variance as the sum of the coefficients 0.1 and 0.85 is close to 1, as observed in high frequency financial data.
+Model (6) is a standard linear ARMA(1,1) model. Model (7) 
+defines the purely random (standard Normal) case and, finally, in order to examine possible effects of fat tails, Model (8) is $t_3$ distributed.
+
+For each model and artificial time series we compute the $t$ statistic for deterministic
+chaos following Shintani and Linton (2004) and BenSa\"{i}da and Litimi (2013) approaches, respectively. In order to estimate the Lyapunov exponents, equation (20),
+we choose the number of observations, either using all the available observations $M=T$ (Full sample), or setting $M=\text{int}[c\times(T/\ln(T))]$, where $\text{int}[x]$ is the integer part of $x$, with $c=36.2$. In the latter case, we use the block subsample (Block) and
+equally spaced subsample (ES) in addition to the entire sample.
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of chaotic processes, maximizing the Lyapunov exponent. Full sample.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (1) & Model (2)  & Model (3) & Model (4)  \\ 
+        $T=200$  &  &  &  & &  & \\
+        (5,6,5)                           &  & 97   & 100  & 100 &  91  \\ 
+        (7,8,7)                           &  & 100  & 100  & 100 &  100  \\ 
+        (10,12,10)                        &  & -    &  -   &  -  &  - \\ 
+        \hline 
+         $T=500$  &  &   & & &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100 & 83  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100 & 100 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100 & 100 \\ 
+\hline 
+         $T=1000$  &  &   &   &  &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100   & 75  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100   & 100 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100   & 100 \\ 
+\hline      
+         $T=1500$  &  &   &   &  &   \\ 
+
+        (5,6,5)                           &  & 100 & 100 &  100  &  100  \\ 
+        (7,8,7)                           &  & 100 & 100 &  100  &  100 \\ 
+        (10,12,10)                        &  & 100 & 100 &  100  &  100 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of chaotic processes, maximizing the Lyapunov exponent. Block subsamples.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (1) & Model (2)  & Model (3) & Model (4)  \\ 
+        $T=200$  &  &  &  & &  & \\
+        (5,6,5)                           &  & 95   & 100  & 100 &  100  \\ 
+        (7,8,7)                           &  & 100  & 100  & 100 &  99  \\ 
+        (10,12,10)                        &  & -    &  -   &  -  &  - \\ 
+        \hline 
+         $T=500$  &  &   & & &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100 & 100  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100 & 99 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100 & 100 \\ 
+\hline 
+         $T=1000$  &  &   &   &  &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100   & 88  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100   & 99 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100   & 100 \\ 
+\hline      
+         $T=1500$  &  &   &   &  &   \\ 
+
+        (5,6,5)                           &  & 100 & 100 &  100  &  100  \\ 
+        (7,8,7)                           &  & 100 & 100 &  100  &  98 \\ 
+        (10,12,10)                        &  & 100 & 100 &  100  &  99 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of chaotic processes, maximizing the Lyapunov exponent. Equally spaced subsamples.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (1) & Model (2)  & Model (3) & Model (4)  \\ 
+        $T=200$  &  &  &  & &  & \\
+        (5,6,5)                           &  & 95   & 100  & 100 &  100  \\ 
+        (7,8,7)                           &  & 100  & 100  & 100 &  100  \\ 
+        (10,12,10)                        &  & -    &  -   &  -  &  - \\ 
+        \hline 
+         $T=500$  &  &   & & &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100 & 25  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100 & 82 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100 & 100 \\ 
+\hline 
+         $T=1000$  &  &   &   &  &    \\ 
+
+        (5,6,5)                           &  & 100 & 100 & 100   & 37  \\ 
+        (7,8,7)                           &  & 100 & 100 & 100   & 56 \\ 
+        (10,12,10)                        &  & 100 & 100 & 100   & 99 \\ 
+\hline      
+         $T=1500$  &  &   &   &  &   \\ 
+
+        (5,6,5)                           &  & 100 & 100 &  100  &  6  \\ 
+        (7,8,7)                           &  & 100 & 100 &  100  &  28 \\ 
+        (10,12,10)                        &  & 100 & 100 &  100  &  99 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of stochastic processes, maximizing the Lyapunov exponent. Full sample.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (5) & Model (6)  & Model (7) & Model (8)  \\ 
+        $T=200$  &  &  &  & &   \\
+        (5,6,5)                           &  & 100 & 100  & 95 & 83 \\ 
+        (7,8,7)                           &  & 33  &  23  & 33 & 64 \\ 
+        (10,12,10)                        &  &  -  & -    & -  & -\\ 
+        \hline 
+                
+         $T=500$  &  &   & & &   \\ 
+
+        (5,6,5)                           &  & 100 & 100  & 100 & 100 \\ 
+        (7,8,7)                           &  & 100 & 100  & 96  & 93 \\ 
+        (10,12,10)                        &  & 0   & 50   &  13 & 16  \\ 
+\hline 
+         $T=1000$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &  100   & 100 & 100 & 100   \\ 
+        (7,8,7)                           &  &  100   & 100 & 100 & 100\\ 
+        (10,12,10)                        &  &  99    & 100 & 93  & 83  \\ 
+\hline      
+         $T=1500$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &   100   & 100 & 100 & 100 \\ 
+        (7,8,7)                           &  &   100   & 100 & 100 & 98  \\ 
+        (10,12,10)                        &  &   100   & 100 & 100 & 99 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of stochastic processes, maximizing the Lyapunov exponent. Block subsamples.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (5) & Model (6)  & Model (7) & Model (8)  \\ 
+        $T=200$  &  &  &  & &   \\
+        (5,6,5)                           &    & 100 &  100 & 86 & 78 \\ 
+        (7,8,7)                           &    &  54 &   53   & 42 & 63  \\ 
+        (10,12,10)                        &    &  -  & -    & -  & -\\ 
+        \hline 
+                
+         $T=500$  &  &   & & &   \\ 
+
+        (5,6,5)                           &   & 100 &  100 & 94  & 87 \\ 
+        (7,8,7)                           &   & 93 &   100 & 71  & 64 \\ 
+        (10,12,10)                        &   & 27   &  0  & 1   &  2 \\ 
+\hline 
+         $T=1000$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &  100   & 100 & 100 & 100   \\ 
+        (7,8,7)                           &  &  100   & 100 & 99  & 97 \\ 
+        (10,12,10)                        &  &   92   & 56  & 56  & 50  \\ 
+\hline      
+         $T=1500$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &  100  & 100 & 100 & 100 \\ 
+        (7,8,7)                           &  &  100  & 100 & 99  & 98  \\ 
+        (10,12,10)                        &  &  96   & 100 & 67  & 72 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) of stochastic processes, maximizing the Lyapunov exponent. Equally spaced subsamples.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc}
+        \hline &  &  &  & &   \\ 
+          &  &  Model (5) & Model (6)  & Model (7) & Model (8)  \\ 
+        $T=200$  &  &  &  & &   \\
+        (5,6,5)                           &    & 100 & 100  & 81 &  74 \\ 
+        (7,8,7)                           &    &  54 &  60  & 42 &  56 \\ 
+        (10,12,10)                        &    &  -  & -    & -  & -\\ 
+        \hline 
+                
+         $T=500$  &  &   & & &   \\ 
+
+        (5,6,5)                           &   & 100 & 100  & 95 & 85 \\ 
+        (7,8,7)                           &   & 93  & 100  & 72 & 62 \\ 
+        (10,12,10)                        &   & 23  &  0  &  2 &  2 \\ 
+\hline 
+         $T=1000$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &  100   & 100 & 100 &  100  \\ 
+        (7,8,7)                           &  &  100   & 100 & 99  &   95 \\ 
+        (10,12,10)                        &  &    91  &  53 &  53 &   52 \\ 
+\hline      
+         $T=1500$  &  &   &   &  &  \\ 
+
+        (5,6,5)                           &  &  100   & 100 & 100 & 100 \\ 
+        (7,8,7)                           &  &  100    & 100 & 100 & 99  \\ 
+        (10,12,10)                        &  &  99    &  100  & 67 & 69 \\ 
+\hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) chaotic processes, minimizing the BIC.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+        \hline &  &  &  & &   \\ 
+        &  &  Model (1) & Model (2)  & Model (3) & Model (4) \\ 
+        $T=200$  &  &  &  & &   \\
+        Full                      &   & 94 & 100 & 98  & 23 \\ 
+        Block                     &   & 97 & 100 & 99  & 36\\ 
+        ES                        &   & 98 & 100 & 98  & 63 \\ 
+        \hline 
+        $T=500$  &  &   & & &    \\ 
+        
+        Full                      &  & 95 & 100 &  100  & 47 \\ 
+        Block                     &  & 100 & 100 &  100 & 39 \\ 
+        ES                        &  & 100 & 100 &  99 & 0\\ 
+        \hline 
+        $T=1000$  &  &   &   &  &    \\ 
+        
+        Full                      & & 96 & 100 &  100 & 38\\ 
+        Block                     & & 100 & 100 & 100 & 19\\ 
+        ES                        & & 99 & 100 & 100 & 0\\ 
+        \hline      
+        $T=1500$  &  &   &   &  &   \\ 
+        
+        Full                      &   & 95 & 99 & 100 & 52 \\ 
+        Block                     &   & 100 & 99 & 100 & 22  \\ 
+        ES                        &   & 97 & 99 & 100 & 0  \\ 
+        \hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ Correct classification (\%) stochastic processes, minimizing the BIC.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccccc}
+        \hline &  &  &  & &   \\ 
+        &  &  Model (5) & Model (6)  & Model (7) & Model (8)  \\ 
+        $T=200$  &  &  &  & &  & \\
+        Full                      &  & 100  & 100 & 100 & 100  \\ 
+        Block                     &  & 98 & 100 & 95 & 97 \\ 
+        ES                        &  & 96 & 100 & 98 & 96 \\ 
+        \hline 
+        $T=500$  &  &   & & &   \\ 
+        
+        Full                      &  & 100 & 100 & 100 & 100 \\ 
+        Block                     &  & 100 & 100 & 100 & 100  \\ 
+        ES                        &  & 100 & 100 & 100 & 100 \\ 
+        \hline 
+        $T=1000$  &  &   &   &  &   \\ 
+        
+        Full                      &  & 100 & 100 & 100 & 100  \\ 
+        Block                     &  & 100 & 100 & 100 & 100 \\ 
+        ES                        &  & 100 & 100 & 100 & 100 \\ 
+        \hline      
+        $T=1500$  &  &   &   &  &   \\ 
+        
+        Full                      &  & 100 & 100 & 100 & 100  \\ 
+        Block                     &  & 100 & 100 & 100 & 100 \\ 
+        ES                        &  & 100 & 100 & 100 & 100 \\ 
+        \hline      
+    \end{tabular*}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+As shown on Tables 1-3, choosing the triplet that maximizes the estimated Lyapunov exponent provides satisfactory classification rates of chaotic processes contaminated with additive noise, ranging between 90--100\%, using either all the observations to estimate the Lyapunov exponent, Block estimation or Equally spaced observations. Nevertheless, it
+may severely affect the power of the test. Hence, on Tables 4-6, in the pure normal random process case, model (7),
+for T=200, chaos is wrongly concluded 67\% of times when choosing the 
+optimal triplet in the set (7,8,7), Full sample estimation. An interesting effect is that, given the sample size, increasing the range
+of possible triplet values increases the loss of power of the test, and conversly, given the set of 
+possible triplet values, increasing the sample size rapidly increases the power of the test. Thus, for the same random process (7)
+and set of triplet values (7,8,7) but T=1000, the (wrong) chaos hypothesis acceptance rate falls to 0\% (Full estimation). 
+At T=1500, the probability of an incorrect classification is very low for all triplet sets and observations choice (Full, Block or Equally spaced). 
+although it is somewhat lower than desirable for Normal and fat tailed distribution $t_3$ (8) for the wider parameter set, in the Block and Equally spaced subsamples cases (correct clasification about 70\%).
+
+In the pure GARCH and linear ARMA processes cases, Model (5) and (6), we achive the same conclusion: given a
+triplet set, the larger the sample size, the more powerful the test. And given a sample size, the larger the set of triplet values, the test is less powerful. For instance, for Model (5), when T=200 and the triplet set
+is (7,8,7), the test wrongly detects chaos with probability 46\%, whereas
+for the same triplet set and T=500, the test wrongly detects chaos with probability as low as 7\%.
+
+It is interesting to point out that our acceptance rates for Model 
+(7), triplet set (10,12,10), T=1000, are
+sharply different from acceptance rates computed by BenSa\"{i}da and Litimi (2013). They found very low acceptance rates, 4\%, whereas we have computed acceptance rates of 44\%.
+We conjecture that probably the authors computed the tests for the triplet set (5,6,5).
+
+Regarding the Shintani and Linton (2004) approach, we computed acceptance rates by using the same three alternative methods to evaluate the Jacobians: using full sample (Full), as well as blocks (Block)  and equally spaced subsamples (ES), see Shintani and Linton (2004) for a detailed discussion. As displayed on Tables 7 and 8, when minimizing the BIC, power is largely improved in the purely random, ARMA and GARCH processes.  However, it negatively affects the size of the test in the model (4) case: for T=500, 1000, 1500, the test wrongly rejects the chaos hypothesis with a probability of 100\% in the ES version, and displays low chaos detection in the rest of procedures, ranging between 23-52\% correct classification rates. Therefore, as BenSa\"{i}da and Litimi (2013) approach is an improvement on Shintani and Linton (2004) to detect some chaotic processes. 
+
+
+
+\section{Chaos in DAX individual stock returns}
+
+
+The advances in chaos theory have raised the interest in detecting complex dynamics
+in economic and financial data, since
+deterministic chaos is an alternative explanation to randomness for stock returns, see e.g. 
+Serletis and Gogas (2000), among many others.
+
+Traditionally, as pointed out above, chaos is deemed to be detected whenever the maximum Lyapunov exponent is 
+positive. It is, when two nearby trajectories in state space diverge at an exponential
+rate, as a reflection of the so-called sensitivity to initial conditions.
+At a practical level, however, computing and testing of Lyapunov exponents
+has not been regarded as an easy task. Then, Webel (2012) suggests using
+the 0--1 test for chaos designed by Gottwald and Melbourne (2004) to detect deterministic chaos
+in the members of the German DAX index with MODWT denoised data.
+The 0--1 test, nevertheless, may present some drawbacks, as shown in Belaire-Franch (2020),
+mostly when the underlying population distribution is characterized by fat tails
+or extreme events, as usually found in financial data. 
+
+In this section, we review Webel's (2012) conclusions regarding chaos in German stock market by
+means  of the BenSa\"{i}da and Litimi (2013) test. with denoised data, as in Webel (2012).
+
+
+Webel (2012) assumes that asset returns time series $\{r_t\}_{t=1}^N$ are defined by:
+\[
+r_t=s_t+\varepsilon_t
+\]
+where $\{s_t\}$ is the one--dimensional signal, an observable of an underlying $k$--dimensional
+deterministic dynamical system, and ${\varepsilon_t}$ is the random noise. Webel suggests
+filtering out noise by wavelet denoising techniques, and then applying the 0--1 test
+to the denoised series.
+More specifically, Webel (2012) computed
+Maximal Overlap Discrete Wavelet Transforms (MODWT) for each returns series, with
+four Daubechies filters. Computing the 0--1 test
+on filtered series allows Webel (2012) to conclude that all 30 DAX asset returns display some chaotic dynamics.
+
+The data, available from Google Finance, consist of daily log returns of the 30 DAX members
+from January 2004 to June 2010, resulting in 1565 observed returns
+per company.\footnote{I thank Charles Webel for helping me in retrieving the original data.}
+For each series, we will compute the MODWT for the Coiflet filter, with the coarsest resolution equal to $[\log_2(T)]$, and a soft thresholding rule, as suggested in
+Webel (2012).
+Then, 
+we will apply the Lyapunov-based testing approach by BenSa\"{i}da (2012) on the filtered data, setting the triplet
+$(L,m,q)=(7,8,7)$, since, for the sample size at hand, the probability of wrong classification is very low as shown in the previous section.
+On Table 9, results are displayed of the Lyapunov exponent estimates and the p-values of the corresponding $t$ statistics
+calculated with the unfiltered data, whereas on Table 10, results are provided for the noise filtered data. 
+
+
+
+\begin{table} [H]\scriptsize
+    \caption{ BenSa\"{i}da (2012) test. DAX30 stocks, raw returns.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrl}
+        \hline &  &  \\ 
+        
+                 & $\hat{\lambda}$ &  p-value \\
+        \hline &  &  \\ 
+
+        Adidas                      & -0.160 &  0.000$^{***}$\\ 
+        Allianz                      & -0.158 &  0.000$^{***}$ \\ 
+        BASF                       & -0.120 &  0.000$^{***}$\\ 
+        Bayer                       & -0.149 &  0.000$^{***}$\\ 
+        Beiersdorf                 & -0.175 &  0.000$^{***}$\\ 
+        BMW                        & -0.152 &  0.000$^{***}$\\ 
+        Commerzbank                & -0.140 & 0.000$^{***}$\\ 
+        Daimler                    & -0.140 &  0.000$^{***}$\\ 
+        Deutsche Bank               &-0.136  & 0.000$^{***}$ \\ 
+        Deutsche B\"orse           & -0.178 & 0.000$^{***}$\\ 
+        Deutsche Lufthansa         & -0.175 &  0.000$^{***}$\\ 
+        Deutsche Post              & -0.135 &  0.000$^{***}$\\ 
+        Deutsche Telekom           & -0.140 &  0.000$^{***}$\\ 
+        Eon                         & -0.151 & 0.000$^{***}$ \\ 
+        Fresenius MedCare          & -0.158 & 0.000$^{***}$ \\ 
+        Fresenius SE               & -0.172 & 0.000$^{***}$\\ 
+        Henkel                      & -0.184 &0.000$^{***}$\\ 
+        Infineon                    & -0.129 & 0.000$^{***}$\\ 
+        K+S                       & -0.167 &  0.000$^{***}$\\ 
+        Linde                     & -0.159 & 0.000$^{***}$\\ 
+        MAN                       & -0.160 & 0.000$^{***}$\\ 
+        Merck                     & -0.150 & 0.000$^{***}$\\ 
+        Metro                      & -0.121 & 0.000$^{***}$ \\ 
+        M\"unchener R\"uck        & -0.158 & 0.000$^{***}$\\ 
+        RWE                       & -0.155 & 0.000$^{***}$\\ 
+        Salzgitter                 & -0.162 & 0.000$^{***}$ \\ 
+        SAP                       & -0.164 & 0.000$^{***}$\\ 
+        Siemens                    & -0.144 & 0.000$^{***}$ \\ 
+        ThyssenKrupp               & -0.157 & 0.000$^{***}$ \\ 
+        VW                      & -0.131 &  0.000$^{***}$\\ 
+        \hline      
+    \end{tabular*}
+    {$^{***}$ indicates rejection of the hypothesis of  deterministic chaos at the 1\% significance level.}
+\end{table}
+
+
+
+\begin{table} [H]
+    \caption{ BenSa\"{i}da (2012) test. DAX30 stocks, filtered returns.}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrl}
+        \hline &  &  \\ 
+        
+                  & $\hat{\lambda}$ &  p-value \\
+        \hline &  &  \\ 
+
+        Adidas                      &  -0.006 & 0.430  \\ 
+        Allianz                      & 0.347 &  1.000 \\ 
+        BASF                       & 0.096 &  1.000 \\ 
+        Bayer                       & 0.051 & 1.000  \\ 
+        Beiersdorf                 & -0.020 & 0.170  \\ 
+        BMW                        & 0.096 & 1.000  \\ 
+        Commerzbank                & 0.028 &  0.965  \\ 
+        Daimler                    & 0.020 &  0.978 \\ 
+        Deutsche Bank              & 0.069 &  0.999 \\ 
+        Deutsche B\"orse           & -0.004 &  0.359 \\ 
+        Deutsche Lufthansa         & -0.009 &  0.240 \\ 
+        Deutsche Post              & 0.085 &   1.000\\ 
+        Deutsche Telekom           & -0.021 &  0.000$^{***}$ \\ 
+        Eon                        & 0.308 &  1.000 \\ 
+        Fresenius MedCare          & 0.001 & 0.785  \\ 
+        Fresenius SE               & 0.031 & 1.000  \\ 
+        Henkel                     & 0.013 & 0.716  \\ 
+        Infineon                   & 0.176 & 1.000  \\ 
+        K+S                       & 0.010 &  0.695 \\ 
+        Linde                     & 0.183 &  1.000 \\ 
+        MAN                       & 0.063 & 1.000  \\ 
+        Merck                     & 0.005 & 0.680  \\ 
+        Metro                     & 0.040 & 0.943  \\ 
+        M\"unchener R\"uck        & 0.190 &  1.000 \\ 
+        RWE                       & -0.009 &  0.342 \\ 
+        Salzgitter                & 0.002 &  0.537 \\ 
+        SAP                       & -0.069 &  0.000$^{***}$ \\ 
+        Siemens                   & 0.093 & 1.000  \\ 
+        ThyssenKrupp              & 0.012 &  0.805 \\ 
+        VW                        & -0.051 &  0.000$^{***}$ \\ 
+        \hline      
+    \end{tabular*}
+        {$^{***}$ indicates rejection of the hypothesis of  deterministic chaos at the 1\% significance level.}
+\end{table}
+
+Thus, when using raw data, the null hypothesis is rejected for the returns of all the members of the
+DAX index. However, if we perform the test using the noise filtered data, the message is completely different,
+since in that case, the null can not be rejected in any case but three: Deutsche Telekom, SAP and VW, i.e., chaos is detected in 27 out of 30 stocks (90\%).
+Therefore, in general, deterministic chaos seems an alternative explanation, at least partially, of the 
+the behavior of the returns of the DAX members, for the analyzed period.
+
+
+
+
+
+\section{Further evidence}
+
+In the previous section, we analyzed the data already analyzed in Webel (2012) by means of an alternative methodology. In this section
+we explore the chaos hypothesis in an updated dataset of the DAX stocks index , known as DAX40, and two additional European  stocks indexes: CAC40 and IBEX35. In all cases the returns have been MODWT-filtered with the Coiflet filter. The time series span the recent period January 2017--June 2023 (1644 observations)\footnote{In some cases, data for stocks comprised too few observations and were excluded from the analysis.}
+
+\subsection{DAX40}
+
+
+
+The DAX40 history dates back to July 1988, when the index was launched. It used to be known as the DAX30, already analyzed in the previous section, and 
+it became DAX40 on september 2021, including ten additional stocks. Now results are in contrast with those of the DAX30 index case, since chaos is deemed to be detected in just 16 out of 37 filtered stock returns (43\%) .  
+
+
+\begin{table} [H]\small
+    \caption{ BenSa\"{i}da (2012) test. DAX40 stocks, filtered returns.}
+        \footnotesize
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrl}
+        \hline &  &  \\ 
+        
+                  & $\hat{\lambda}$ &  p-value \\
+        \hline &  &  \\ 
+
+        Adidas                    & -0.046 &  0.000$^{***}$  \\ 
+        Airbus                    &  0.082 &  1.000 \\
+        Allianz                   & 0.089  &  1.000 \\
+        BASF                      & 0.004  &  0.569\\ 
+        Bayer                     & -0.085  & 0.000$^{***}$   \\ 
+				Beiersdorf                & 0.340  & 1.000  \\ 
+        BMW                       & 0.006  & 0.640  \\ 
+      	Brenntag                  & -0.074  &  0.002$^{***}$  \\
+      	Commerzbank               & -0.001 &  0.458  \\ 
+      	Continental               & -0.003 &  0.418  \\
+      	Covestro                  & -0.047 &  0.012$^{***}$   \\
+        Deutsche Bank             & 0.036 &  0.958 \\ 
+				Deutsche B\"orse          & -0.077 &  0.000$^{***}$ \\ 
+     		Deutsche Telekom          & -0.052 &  0.000$^{***}$ \\ 
+        DHL                       & -0.010 &  0.326 \\
+        Eon                       & -0.023 &  0.000$^{***}$  \\ 
+        Fresenius MedCare         & 0.094  & 1.000  \\ 
+        Hannover R\"uck           & -0.093 & 0.039$^{**}$   \\
+    		Heidelberg Materials      & 0.008 & 0.167  \\ 
+    		Henkel                    & -0.082 & 0.000$^{***}$   \\ 
+        Infineon                  & 0.053  & 1.000  \\ 
+        Mercedes-Benz             & 0.019  & 0.806 \\
+        Merck                     & -0.138 & 0.000$^{***}$   \\ 
+        MTU Aero Engines          & -0.082 & 0.014$^{**}$  \\ 
+        M\"unchener R\"uck        & -0.040  & 0.005$^{***}$ \\ 
+        Porsche Automobil         & -0.031 & 0.000$^{***}$   \\ 
+        QIAGEN                    & -0.106 & 0.013$^{**}$   \\ 
+        Rheinmetall               & -0.061 & 0.000$^{***}$  \\ 
+        RWE                       & -0.033 &  0.047$^{**}$  \\ 
+        SAP                       & -0.067 &  0.000$^{***}$ \\ 
+        Sartorius                 & -0.087 & 0.000$^{***}$  \\ 
+        Siemens                   &  0.084 &  1.000 \\ 
+        Siemens Healthineers      & -0.049 &  0.003$^{***}$  \\ 
+        Symrise                   & -0.036 &  0.000$^{***}$ \\ 
+        VW                        & 0.027  &   0.974 \\ 
+        Vonovia                   & -0.037 &   0.008$^{***}$  \\ 
+        Zalando                   & -0.010 &   0.197 \\ 
+        \hline      
+    \end{tabular*}
+        {$^{*}$, $^{**}$ and $^{***}$ indicate rejection of the hypothesis of  deterministic chaos at the 10\%, 5\% and 1\% significance level, respectively.}
+\end{table}
+
+
+
+\subsection{CAC40}
+
+\begin{table} [H]\scriptsize
+    \caption{ BenSa\"{i}da (2012) test. CAC40 stocks, filtered returns.}
+        \footnotesize
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrl}
+        \hline &  &  \\ 
+        
+                  & $\hat{\lambda}$ &  p-value \\
+        \hline &  &  \\ 
+        Airbus                     & 0.046  & 1.000\\ 
+        Air Liquid                 & -0.101 & 0.000$^{***}$  \\ 
+        Alstom                     & -0.047 &  0.003$^{***}$ \\ 
+        Arcelor                    & 0.038   & 0.999  \\ 
+        Axa                        & -0.019 & 0.001$^{***}$  \\ 
+        BNP                        &  0.073 & 1.000  \\ 
+        Bouygues                   & 0.088  &  0.999  \\ 
+        Capgemini                  & -0.041 & 0.000$^{***}$  \\ 
+        Carrefour                  & 0.033  &  0.999 \\ 
+        Credit                     & -0.011 &  0.043$^{**}$ \\ 
+        Danone                     &  0.108 &  1.000 \\ 
+        Engi                       & -0.028 &  0.000$^{***}$ \\ 
+        Essilor                    & -0.039 &  0.000$^{***}$ \\ 
+        Eurofins                   & -0.032 &  0.195 \\ 
+        Hermes                     & -0.020 &  0.193 \\ 
+        Kering                     & -0.019 & 0.001$^{***}$  \\ 
+        Legrand                    & -0.064 & 0.000$^{***}$  \\ 
+        L'Oreal                    &  0.032  & 0.999  \\ 
+				L. Vuitton                 & -0.051 & 0.000$^{***}$  \\ 
+        Michelin                   & 0.012   &  0.863 \\ 
+        Microelectronics           & 0.036   &  0.999 \\ 
+        Orange                     & -0.038  & 0.025$^{**}$   \\ 
+        Pernod                     & -0.048  & 0.000$^{***}$ \\ 
+        Publicis                   & -0.016  & 0.098$^{*}$  \\ 
+       	Renault                    & 0.053  &  1.000 \\ 
+        Safran                     & 0.059 &  1.000\\ 
+				Saintgobain                & -0.022  &  0.000$^{***}$ \\
+        Sanofi                     & -0.022 &  0.002$^{***}$ \\ 
+        Schneider                  & -0.028 & 0.075$^{***}$   \\ 
+        Societe                    & 0.013  &   0.781 \\ 
+        Stellantis                 & 0.234  &  1.000  \\    
+        Teleper                    & 0.027  &   0.866\\ 
+        Total Energies             &  0.023 &  1.000 \\ 
+        Veolia                     & -0.056 & 0.000$^{***}$  \\ 
+        Vinci                      & 0.025  &  0.999 \\ 
+        Worldline                  &  0.016 &  0.853 \\ 
+        \hline      
+    \end{tabular*}
+        {$^{*}$, $^{**}$ and $^{***}$ indicate rejection of the hypothesis of  deterministic chaos at the 10\%, 5\% and 1\% significance level, respectively.}
+\end{table}
+
+The CAC 40 is a French stock market index that represents the 40 largest 
+shares on the Paris Stock Exchange konwn as Euronext Paris, formerly known as the Paris Bourse. 
+In this case, chaos is detected in 18/37 stock returns, i.e., about 48\% of cases.
+
+
+
+\subsection{IBEX35}
+
+The IBEX35 is a Spanish index wich comprises the value of the 35 largest companies in the market.
+For this index, chaos detection ratio in individual stock returns is 18/34, so about 53\% of stocks display, statistically, chaotic dynamics in their 
+MODWT filtered returns.
+
+
+\begin{table}  [H]\small
+    \caption{ BenSa\"{i}da (2012) test. IBEX35 stocks, filtered returns.}
+     \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrl}
+        \hline &  &  \\ 
+        
+                  & $\hat{\lambda}$ &  p-value \\
+        \hline &  &  \\ 
+        Acciona                 &  0.330 & 1.000 \\ 
+        Acerinox                &  0.004 & 0.644  \\ 
+        ACS                     & -0.093 & 0.000$^{***}$ \\ 
+				AENA                    &  0.071 & 1.000 \\ 
+        Arcelormittal           &  0.040 & 1.000 \\ 
+  			Bankinter               & -0.012 & 0.007$^{***}$ \\ 
+        BBVA                    &  0.103 & 1.000  \\ 
+        Caixabank               &  0.017 & 0.940   \\ 
+        Cellnex                 &  0.406 & 1.000 \\ 
+        Colonial                & -0.066 & 0.041$^{***}$ \\ 
+        Enagas                  & -0.128 & 0.000$^{***}$ \\ 
+        Endesa                  & -0.063 & 0.000$^{***}$  \\ 
+        Ferrovial               & -0.043 & 0.000$^{***}$  \\ 
+        Fluidra                 & 0.006  & 0.711  \\ 
+        Grifols                 & -0.044 & 0.000$^{***}$  \\ 
+        IAG                     &  0.015 & 0.965  \\ 
+        Iberdrola               & -0.003 & 0.288  \\ 
+        Inditex                 & -0.109 & 0.000$^{***}$  \\ 
+        Indra                   & -0.056 & 0.000$^{***}$   \\ 
+        Logista                 & -0.077 & 0.000$^{***}$ \\ 
+        Mapfre                  &  0.123 & 1.000 \\ 
+        Melia                   &  0.064 & 1.000 \\ 
+        Merlin                  &  0.017 & 0.868 \\ 
+        Naturgy                 & -0.110 & 0.000$^{***}$ \\ 
+        Redeia                  &  0.021 & 0.977 \\ 
+        Repsol                  &  0.039 & 1.000 \\ 
+        Rovi                    & -0.017 & 0.086$^{*}$  \\ 
+        Sabadell                &  0.044 & 1.000 \\ 
+        Sacyr                   & -0.056 & 0.000$^{***}$  \\ 
+        Santander               & -0.019 & 0.008$^{***}$ \\ 
+        Solaria                 &  0.100 & 0.999 \\   
+        Telefonica              & -0.064 & 0.000$^{***}$ \\ 
+        Unicaja                 & -0.053 & 0.004$^{***}$ \\ 
+        \hline      
+    \end{tabular*}
+        {$^{*}$, $^{**}$ and $^{***}$ indicate rejection of the hypothesis of  deterministic chaos at the 10\%, 5\% and 1\% significance level, respectively.}
+\end{table}
+
+
+
+
+
+
+\section{Conclusions}
+
+In this paper, we have studied the finite sample behavior of the $t$ test
+for deterministic chaos, using two alternative procedures to select the parameters
+combination used to estimate the maximum Lyapunov exponent from a neural network 
+model: either by maximizing the Lyapunov exponent or by minimizing the Bayesian information criterion.
+
+Our simulation results confirm that choosing the parameters that maximize the
+Lyapunov exponent, maximize the probability of correctly detect deterministic chaos
+but at the cost of a dramatic loss of power against some random processes, as N(0,1),
+GARCH or $t_3$. On the other hand, choosing the parameters by minimizing the BIC largely improves the power of the test, but at the cost of a large size distortion against some noisy chaotic processes, as the noisy Rossler system. 
+
+Consequently, one should apply the chaos test with care when maximizing the estimated Lyapunov exponent. One could define a narrow set of parameters values, e.g., (5,6,5); in that case, however, high order deterministic chaos could be undetectable. 
+
+Moreover, we have revisited the deterministic chaos hypothesis for the daily returns of all
+the members of the German DAX index. Webel (2012) showed that chaotic structures could not be ruled
+out by means of the so-called 0--1 test. However, recent studies show that the test results could be
+not reliable when computed with heavy-tailed data. Thus, in this work we have used the methodology of BenSa\"{i}da (2012), based on the estimation and testing of the maximum Lyapunov exponent, 
+filtering out the returns series, using MODWT as in Webel (2012),
+but taking into account the parameter set size limitations displayed by our Monte Carlo work. 
+Results show that deterministic chaos is highly prominent in all returns series but three. Then, we can
+claim that Webel's (2012) conclusions are sustained by the alternative approach used in this paper.
+
+Further application of this methodology to an updated DAX index, the French CAC40 and the Spanish IBEX35 shows that chaos hypothesis depends both of the sample period considered and the individual stocks involved, although chaos detection is not negligible, since it is not rejected in about 40--50\% of cases.
+
+
+
+
+\section*{Declarations and Statements}
+
+The authors declare that no funds, grants, or other support were received during the preparation of this manuscript.
+
+The authors have no relevant financial or non-financial interests to disclose.
+
+
+
+
+
+
+\section{References}
+
+
+\noindent Abbaszadeh, M.R., Nooghabi, M.J., Rounaghi, M.M. (2020) Using Lyapunov's method for analysing of chaotic behaviour on financial time series data: a case study on Tehran stock exchange. \emph{National Accounting Review} 2(3), 297--308.
+\newline{}\\
+\noindent Abhyankar, A., Copeland, L. S., Wong, W. (1997). Uncovering Nonlinear Structure in Real-Time Stock-Market indices: The S\&P 500, the DAX, the Nikkei 225, and the FTSE-100. \emph{Journal of Business \& Economic Statistics}, 15(1), 1–-14.
+\newline{}\\
+\noindent Adrangi, B., Chatrath, A., Dhanda, K.K., Raffiee, K. (2001).
+Chaos in oil prices? Evidence from futures markets. \emph{Energy Economics}, 23(4), 405--425,
+\newline{}\\
+\noindent Antoniou, A., Vorlow, C. E. (2005). Price clustering and discreteness: is there chaos behind the noise?,
+\emph{Physica A: Statistical Mechanics and its Applications} 348, 389--403.
+\newline{}\\
+\noindent Ashley, R. A., Patterson, D. M. (1989). Linear Versus Nonlinear Macroeconomies: A Statistical Test. \emph{International Economic Review} 30(3), 685-–704.
+\newline{}\\
+\noindent Barnett, W.A., Bella, G., Ghosh, T., Mattana, P., Venturi, B. (2022). Shilnikov chaos, low interest rates, and New Keynesian macroeconomics.
+\emph{Journal of Economic Dynamics and Control} 134.  
+\newline{}\\
+\noindent Barnett, W.A., Chen, P. (1988) The aggregation-theoretic monetary aggregates are chaotic and have strange attractors: An econometric application of mathematical chaos, in:\emph{Dynamic Econometric Modeling, Proc. 3rd Int. Symp. on Economic Theory and Econometrics}, ed. W.A. Barnett, E. Berndt, and H. White. Cambridge University Press, Cambridge, 199–-246.
+\newline{}\\
+\noindent Bella, G., Ghosh, T., Mattana, P., Venturi, B. (2017). Shilnikov chaos in the Lucas model of endogenous growth.
+\emph{Journal of Economic Theory} 172, 451-–477 
+\newline{}\\
+\noindent Bella, G., Mattana, P., Venturi, B. (2017). Shilnikov chaos in the Lucas model of endogenous growth,
+\emph{Journal of Economic Theory} 172.
+\newline{}\\
+\noindent Belaire-Franch, J. (2020). The finite sample behavior of the 0--1 test for chaos. \emph{Physica A}
+555.
+\newline{}\\
+\noindent Benhabib, J., Day, R.H. (1981). Rational choice and erratic behaviour. \emph{Review of Economic
+Studies} 48, 459--471.
+\newline{}\\
+\noindent Benhabib, J., Day, R.H. (1982). A characterization of erratic dynamics in the overlapping generations
+models. \emph{Journal of Economic Dynamics and Control} 4, 37--55.
+\newline{}\\
+\noindent BenSa\"{i}da A. (2012). Are financial markets stochastic: a test for noisy chaos. \emph{Am Int J Contemp Res} 2(8), 57---68.
+\newline{}\\
+\noindent BenSa\"{i}da A., Litimi H. (2013). High level chaos in the exchange and index markets.
+\emph{Chaos, Solitions and Fractals} 54, 90--95.
+\newline{}\\
+\noindent BenSa\"{i}da A. (2015). A practical test for noisy chaotic dynamics.
+\emph{Software X} 3, 1--5.
+\newline{}\\
+\noindent Brock, W.A., Dechert, W.D., Hsieh, D.A., LeBaron, B.(1996) A test for independence based on the correlation dimension. \emph{Econometric Reviews} 15(3), 197–-235.
+\noindent Brock, W.A., Hommes, C.H. (1998) Heterogeneous beliefs and routes to chaos in a simple asset pricing model,
+\emph{Journal of Economic Dynamics and Control} 22(8-–9), 1235--1274,
+\newline{}\\
+\noindent Brock, W.A., Hsieh, D.A., LeBaron, B. (1991). \emph{Nonlinear Dynamics, Chaos, and Instability.
+Statistical Theory and Economic Evidence}. The MIT Pres.
+\newline{}\\
+\noindent Brock, W.A., Sayers, C.L. (1988). Is the business cycle characterized by deterministic chaos?. \emph{Journal of Monetary Economics},
+22(1) 71--90.
+\newline{}\\
+\noindent Day, R.H. (1983). The emergence of chaos from classical economic growth. \emph{Quarterly Journal
+of Economics} 98, 201--213.
+\newline{}\\
+\noindent Dechert, W. D., Gencay, R. (1990).
+Estimating Lyapunov exponents with multilayer feedforward network learning. Working paper, Department of Economics, University of Houston.
+\newline{}\\
+\noindent Dechert, W. D., Gencay, R. (1992).  Lyapunov exponents as a nonparametric diagnostic for stability analysis. \emph{Journal of Applied Econometrics} 7(1), S41--S60. 
+\newline{}\\
+\noindent De Grauwe, P., Dewachter, H., Embrechts, M. (1993). \emph{Exchange Rate Theory: Chaotic Models of Foreign Exchange Markets}. Blackwell Publ.
+\newline{}\\
+\noindent Ellner, S., Gallant, A.R., McCaffrey,  D., Nychka, D. (1991).
+Convergence rates and data requirements for Jacobian-based estimates of Lyapunov exponents from data.
+\emph{Physics Letters A}, 153, 357--363.
+\newline{}\\
+\noindent Ellner, S., Nychka, D. W., Gallant, A. R. (1992). LENNS, a program to estimate the dominant Lya-punov exponent of noisy nonlinear systems fromtime series data, Mimeo 2235 (BMA Series 39), 276958203, Institute of Statistics Mimeo Series,S tatistics Department, North Carolina State Univer-sity, Raleigh NC. 
+\newline{}\\
+\noindent Frank, M.Z., Stengos, T. (1988). Some evidence concerning macroeconomic chaos. \emph{Journal of Monetary Economics}
+22(3), 423--438.
+\newline{}\\
+\noindent Gencay R., Dechert, W.D. (1992). An algorithm for the n Lyapunov exponents of an n-dimensional unknown dynamical system,
+\emph{Physica D: Nonlinear Phenomena} 59(1-–3) 142--157,
+\newline{}\\
+\noindent Gencay R., Dechert, W.D. (1996). The Identification of Spurious Lyapunov Exponents in Jacobian Algorithms, \emph{Studies in Nonlinear Dynamics \& Econometrics} 1(3), 1--12,
+\newline{}\\
+\noindent Giannerini, S., Rosa,  R. (2004).  Assessing chaos in time series: Statistical aspects and perspectives.  \emph{Studies in Nonlinear Dynamics \& Econometrics} 8 (2).
+\newline{}\\
+\noindent Gilmore,  C.G. (1993), A New Test for Chaos. \emph{Journal of Economic Behaviour Organisations} 22 (2) 209--237.
+\newline{}\\
+\noindent Gottwald, G. A., Melbourne, I. (2004). A new test for chaos in deterministic systems.
+\emph{Proc. R. Soc.} A 460. 603--611.
+\newline{}\\
+\noindent Grandmont, J.M. (1985). On endogenous competitive business cycles. Econometrica 53, 995–-1045 .
+\newline{}\\
+\noindent Grassberger, P., Procaccia, I. (1983). Measuring the strangeness of strange attractors,
+\emph{Physica D: Nonlinear Phenomena} 9 (1-–2) 189--208.
+\newline{}\\
+\noindent Hsieh, D.A. (1991). Chaos and Nonlinear Dynamics: Application to Financial Markets. \emph{The Journal of Finance} 46 (5), 1839--1877. 
+\newline{}\\
+\noindent Hochreiter, S., Schmidhuber, J. (1997)  Long Short-term Memory. \emph{Neural Computation} 9. 1735--80. 
+\newline{}\\
+\noindent Hornik K., Stinchcombe M., White H., Auer P. (1994).
+Degree of approximation results for feedforward networks approximating unknown mappings and their derivatives.
+\emph{Neural Computation} 6 (6),1262--1275.
+\newline{}\\
+\noindent Kantz H., Schreiber T. (1997)
+\emph{Nonlinear Time Series Analysis}. Cambridge University Press, Cambridge. 
+\newline{}\\
+\noindent Klioutchnikov, I., Sigova, M., Beizerov, N. (2017). Chaos Theory in Finance. \emph{Procedia Computer Science} 119, 368--375.
+\newline{}\\
+\noindent Kuan, C.-M., White, H. (1994). Artificial neural networks: An econometric perspective
+(with discussions). \emph{Econometric Reviews} 13, 1--91 and 139--143.
+\newline{}\\
+\noindent Litimi, H., Bensaïda, A., Belkacem, L., Abdallah, O. (2019). Chaotic behavior in financial market volatility.
+\emph{The Journal of Risk} 21(3), 27--53.
+\newline{}\\
+\noindent Lucas, R.E. (1988). On the mechanics of economic development. \emph{Journal of Monetary Economics} (22) 1, 3--42,
+\newline{}\\
+\noindent McKenzie, M.D. (2001). Chaotic behavior in national stock market indices: New evidence from the close returns test.
+\emph{Global Finance Journal} 12(1), 35--53.
+\newline{}\\
+\noindent Moghadam, A.G., Nooghabi, M.J., Rounaghi, M.M., Hafezi, M.H., Ayyoubi, M., Danaei, A., Gholami, M. (2014).
+Chaos Process Testing (Time-Series in The Frequency Domain) in Predicting Stock Returns in Tehran Stock Eechange.
+\emph{Indian Journal of Scientific Research} 4(6), 202--210.
+\newline{}\\
+\noindent Nychka D., Ellner. S, Gallant A.R., McCaffrey D. (1992). Finding chaos in noisy systems. \emph{Journal of the Royal Statistical Society B} 54(2), 399--426.    
+\newline{}\\
+\noindent Oseledec, V. I. (1968). A multiplicative ergodic theorem, Lyapunov characteristic numbers for dynamical systems. Transactions of the Moscow Mathematical Society, 19, 197-'231.
+\newline{}\\
+\noindent Rao, T.S., Gabr, M.M. (1984). \emph{An Introduction to Bispectral Analysis and Bilinear Time Series Models}. Lecture Notes in Statistics.
+Springer New York, NY.
+\newline{}\\
+\noindent Rosenstein M. T., Collins J.J., De Luca,C.J. (1993). A practical method for calculating largest Lyapunov exponents from small data sets.\emph{Physica D: Nonlinear Phenomena} 65(1), 117--134.
+\newline{}\\
+\noindent Sandubete, J.E., Escot, L. (2020) Chaotic signals inside some tick-by-tick financial time series. \emph{Chaos, Solitons \& Fractals} 137, 109852.
+\newline{}\\
+\noindent Serletis, A. and Gogas, P. (1997). Chaos in East European Black Market Exchange Rates. \emph{Research in Economics}, 51, 359--385.
+\newline{}\\
+\noindent Serletis, A., Gogas, P. (2000). Purchasing power parity, nonlinearity and chaos.
+\emph{Applied Financial Economics} 10. 615--622.
+\newline{}\\
+\noindent Shintani, M., Linton, O. (2004). Nonparametric
+neural network estimation of lyapunov exponents and a direct test for chaos,
+\emph{Journal of Econometrics} 120~(1). 1--33.
+\newline{}\\
+\noindent Takens, F. (1981),  Dynamical Systems and Turbulence, Warwick 1980. \emph{Lecture Notes in Mathematics} 898, 366--381. Springer-Verlag, Berlin Heidelberg, 
+\newline{}\\
+\noindent Toker, D., Sommer, F.T.,  D’Esposito, M. (2020) A simple method for detecting chaos in nature. Commun Biol 3, 11 (2020).
+\newline{}\\
+\noindent Webel, K., 2012.Chaos in German stock returns. New evidence from the 0--1 test.
+\emph{Economics Letters}, Vol. 115(3), 487--489.
+\newline{}\\
+\noindent Williams, R.J., Zipser, D. (1989) A Learning Algorithm for Continually Running Fully Recurrent Neural Networks. \emph{Neural Computation} 1, 270--280.
+\newline{}\\
+\noindent Wolf A., Swift J.B.,  Swinney H.L.,  Vastano J.A. (1985), Determining Lyapunov exponents from a time series. \emph{Physica D: Nonlinear Phenomena} 16, 285--317.
+\newline{}\\
+\noindent Yu, H., Wilamowski, B.M. (2011). Levenberg–Marquardt Training. \emph{Intelligent Systems}, 12--1,12--16. Routledge.
+\newline{}\\
+\noindent Zbilut, J.P.,  Webber, C.L. (1992) Embeddings and delays as derived from quantification of recurrence plots.
+\emph{Physics Letters A} 171(3–4) 199--203.
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
